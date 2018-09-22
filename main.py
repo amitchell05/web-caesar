@@ -7,7 +7,6 @@ app.config['DEBUG'] = True
 
 form = """
 <!DOCTYPE html>
-
 <html>
     <head>
         <style>
