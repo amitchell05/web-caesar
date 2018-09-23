@@ -1,9 +1,17 @@
-from flask import Flask, request
-
+from flask import Flask, request, redirect
 from caesar import rotate_string
+import cgi
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
+
+def is_integer(rot_value):
+    try:
+        int(rot_value)
+        return True
+
+    except ValueError:
+        return False
 
 form = """
 <!DOCTYPE html>
@@ -31,6 +39,7 @@ form = """
             <label>Rotate by:
                 <input type="text" name="rot" value="0" />
             </label>
+            <p class="error"></p>
             <textarea name="text">{0}</textarea>
             <input type="submit" />  
     </body>
@@ -43,9 +52,21 @@ def index():
 
 @app.route("/", methods=['POST'])
 def encrypt():
-    rot_value = int(request.form['rot'])
-    text_value = str(request.form['text'])
+    rot_value = request.form['rot']
+    rot_value = cgi.escape(rot_value)
+
+    rot_value_error = 'Not a valid integer'
+
+    if is_integer(rot_value) == False:
+        return rot_value_error
+    else:
+        rot_value = int(rot_value)
+
+    text_value = request.form['text']
+    text_value = cgi.escape(text_value)
+
     encrypted = rotate_string(text_value, rot_value)
+
     return '<h1>' + form.format(encrypted) + '</h1>'
 
 app.run()
